@@ -28,6 +28,9 @@ if [[ -d .config/fish ]]; then
   done
 fi
 setfile ".config/fish/config.fish"
+
+setfile ".claude/settings.json"
+
 setfile ".gitconfig_shared"
 # setfile ".gitignore_global"
 # git config --global include.path "~/.gitconfig_shared"
