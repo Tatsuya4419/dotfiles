@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -f *)",
+      "Read(**/.env)",
+      "Read(**/*.env)",
+      "Read(./.venv)",
+      "Read(./node_modules)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.crt)",
+      "Read(**/*.cer)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)",
+      "Read(**/id_rsa)",
+      "Read(**/id_dsa)",
+      "Read(**/credentials.json)",
+      "Read(**/secret.json)",
+      "Write(**/.env)",
+      "Write(**/*.env)",
+      "Bash(docker push *)"
+    ],
+    "arrow": [
+      "WebSearch"
+    ]
+  },
+  "theme": "dark"
+}
