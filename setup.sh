@@ -30,6 +30,13 @@ fi
 setfile ".config/fish/config.fish"
 
 setfile ".claude/settings.json"
+if [[ -d .claude/skills ]]; then
+  find .claude/skills -type f -print0 | while IFS= read -r -d '' file; do
+    setfile "$file"
+  done
+fi
+
+setfile ".markdownlint-cli2.jsonc"
 
 setfile ".gitconfig_shared"
 # setfile ".gitignore_global"

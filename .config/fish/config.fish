@@ -15,3 +15,5 @@ end
 
 command -v starship && starship init fish | source
 
+export PATH="$HOME/.local/bin:$PATH"
+
