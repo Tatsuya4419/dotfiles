@@ -13,7 +13,7 @@ if status is-interactive
     abbr -a t tree -L 2
 end
 
-command -v starship && starship init fish | source
+command -q starship; and starship init fish | source
 
 export PATH="$HOME/.local/bin:$PATH"
 

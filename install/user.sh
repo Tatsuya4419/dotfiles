@@ -51,6 +51,17 @@ elif ! curl -fsSL https://chatgpt.com/codex/install.sh | sh; then
   warn "Codex install failed"
 fi
 
+# mq
+# https://mqlang.org/
+# インストール先は ~/.local/bin。installer は config.fish に PATH 行を追記するので、
+# 導入済みならスキップして追記の重複を避ける。
+log "mq"
+if has mq; then
+  skip "$(mq --version 2>&1 | head -1)"
+elif ! curl -sSL https://mqlang.org/install.sh | bash; then
+  warn "mq install failed"
+fi
+
 # Headroom
 # https://github.com/headroomlabs-ai/headroom
 # Debian/Ubuntu の python は externally-managed なので pipx で入れる。
@@ -71,6 +82,41 @@ elif npm ls -g --depth=0 markdownlint-cli2 >/dev/null 2>&1; then
   skip "markdownlint-cli2 already installed"
 elif ! npm install markdownlint-cli2 --global; then
   warn "markdownlint-cli2 install failed"
+fi
+
+# Starship
+# https://starship.rs/ja-JP/
+# 既定の install 先は /usr/local/bin で sudo が要るため、--bin-dir で $HOME に寄せる。
+log "Starship"
+if has starship; then
+  skip "$(starship --version 2>&1 | head -1)"
+elif ! curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"; then
+  warn "starship install failed"
+fi
+# preset は既存の設定を上書きするので、無いときだけ生成する。
+if ! has starship; then
+  skip "starship not installed: skipping preset"
+elif [[ -f "$HOME/.config/starship.toml" ]]; then
+  skip "starship.toml already exists"
+else
+  mkdir -p "$HOME/.config"
+  starship preset gruvbox-rainbow -o "$HOME/.config/starship.toml" ||
+    warn "starship preset failed"
+fi
+
+# Fisher (fish plugin manager)
+# https://github.com/jorgebucaran/fisher
+# fish 上でしか動かないので fish -c 経由で叩く。導入後は fish_plugins の内容を同期する。
+log "Fisher"
+if ! has fish; then
+  warn "fish not installed: skipping fisher"
+elif fish -c 'functions -q fisher' >/dev/null 2>&1; then
+  skip "fisher already installed"
+elif fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'; then
+  # fish_plugins に列挙されたプラグインを取り込む。
+  fish -c 'fisher update' || warn "fisher update failed"
+else
+  warn "fisher install failed"
 fi
 
 # MCP
