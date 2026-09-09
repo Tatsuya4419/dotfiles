@@ -8,12 +8,15 @@ set -uo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-# パッケージ名はディストリごとに違う（RHEL 系だと vim は vim-enhanced、
-# fish / pipx / zoxide は EPEL、gh は GitHub のリポジトリ登録が要る、など）。
-# 埋まっているのは Debian 系だけ。RHEL 系は実機で確認してから pkgs_dnf を埋めること。
-# 空のままなら、当てずっぽうのコマンドを出さずに警告して止まる。
+# パッケージ名はディストリごとに違う。コンテナ (almalinux:9 / :10) で確認済み。
+# pkgs_dnf は RHEL 10 に合わせてある。9 が来たら手で直す（9 は npm、10 は nodejs-npm）。
+# fish / pipx / gh は EPEL 前提。EPEL が使えない環境なら管理者に相談するか諦める。
+# 除外したもの:
+#   eza    - 9 にも 10 にも無い（EPEL を足しても無い）。ll は fish 側で ls に落ちる
+#   zoxide - EPEL 9 にはあるが 10 に無い。dnf は 1 つでも未知の名前があると
+#            何も入れずに落ちるため、リストに残せない
 pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide)
-pkgs_dnf=()  # 未検証
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh)
 
 pm="$(detect_pm)"
 case "$pm" in
