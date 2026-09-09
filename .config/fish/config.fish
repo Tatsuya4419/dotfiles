@@ -9,11 +9,11 @@ if status is-interactive
     abbr -a gl git log
     abbr -a gf git fetch
     abbr -a xr xargs -I {}
-    # eza があれば使う。列を ls -alg に合わせる（所有者を隠しグループを出す）。
+    # eza があれば使う（アイコンと git ステータス列つき）。
     if command -q eza
-        abbr -a ll eza -al --no-user --group
+        abbr -a ll eza -la --group --icons --git
     else
-        abbr -a ll ls -alg
+        abbr -a ll ls -al
     end
     abbr -a t tree -L 2
 end
