@@ -1,5 +1,8 @@
 {
   "permissions": {
+    "allow": [
+      "WebSearch"
+    ],
     "deny": [
       "Bash(rm -f *)",
       "Read(**/.env)",
@@ -19,9 +22,6 @@
       "Write(**/.env)",
       "Write(**/*.env)",
       "Bash(docker push *)"
-    ],
-    "arrow": [
-      "WebSearch"
     ]
   },
   "theme": "dark"
