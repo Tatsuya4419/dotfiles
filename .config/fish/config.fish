@@ -17,3 +17,6 @@ command -v starship && starship init fish | source
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# npm global (see install/install.sh: npm config set prefix ~/.npm-global)
+fish_add_path -g "$HOME/.npm-global/bin"
+
