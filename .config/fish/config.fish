@@ -10,7 +10,7 @@ if status is-interactive
     abbr -a gf git fetch
     abbr -a xr xargs -I {}
     abbr -a ll ls -alg
-    abbr -a tr tree -L 2
+    abbr -a t tree -L 2
 end
 
 command -v starship && starship init fish | source
