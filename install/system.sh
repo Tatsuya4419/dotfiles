@@ -8,7 +8,7 @@ set -uo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-apt_pkgs=(fish npm python3-pip pipx tree python3 vim)
+apt_pkgs=(fish npm python3-pip pipx tree python3 vim gh eza zoxide)
 
 # 未導入のものだけを拾う。dpkg が無い環境では実体の有無で代用する。
 # dpkg -s は "deinstall ok config-files"（purge 前）でも 0 を返すため Status を見る。
@@ -22,7 +22,7 @@ if has dpkg-query; then
     apt_installed "$pkg" || apt_missing+=("$pkg")
   done
 else
-  for pkg in fish npm pipx tree python3 vim; do
+  for pkg in fish npm pipx tree python3 vim gh eza zoxide; do
     has "$pkg" || apt_missing+=("$pkg")
   done
 fi
