@@ -12,7 +12,7 @@ case $- in
     alias gl='git log'
     alias gf='git fetch'
     alias xr='xargs -I {}'
-    alias ll='ls -alg --color=auto'
+    alias ll='ls -al --color=auto'
     # 元は fish 側で `tr` だったが coreutils の tr と衝突するため t に変更した。
     alias t='tree -L 2'
     ;;

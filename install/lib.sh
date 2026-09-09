@@ -24,6 +24,19 @@ summary() {
   return 0
 }
 
+# 使えるパッケージマネージャ。対応外は "none"。
+detect_pm() {
+  if has apt-get; then
+    printf 'apt'
+  elif has dnf; then
+    printf 'dnf'
+  elif has yum; then
+    printf 'yum'
+  else
+    printf 'none'
+  fi
+}
+
 # root なら sudo 不要、非 root で sudo が無ければ "none"。
 detect_sudo() {
   if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
