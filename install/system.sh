@@ -15,8 +15,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #   eza    - 9 にも 10 にも無い（EPEL を足しても無い）。ll は fish 側で ls に落ちる
 #   zoxide - EPEL 9 にはあるが 10 に無い。dnf は 1 つでも未知の名前があると
 #            何も入れずに落ちるため、リストに残せない
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh)
+# bubblewrap は codex のサンドボックス実行用（bwrap コマンド）。両系統とも同名で、
+# RHEL 側は EPEL 不要（baseos）。
+pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap)
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap)
 
 pm="$(detect_pm)"
 case "$pm" in
