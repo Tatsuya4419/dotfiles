@@ -17,8 +17,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #            何も入れずに落ちるため、リストに残せない
 # bubblewrap は codex のサンドボックス実行用（bwrap コマンド）。両系統とも同名で、
 # RHEL 側は EPEL 不要（baseos）。
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap)
+pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3)
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite)
 
 pm="$(detect_pm)"
 case "$pm" in
