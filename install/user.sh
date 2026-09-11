@@ -93,6 +93,39 @@ else
   fi
 fi
 
+# Glances
+# https://github.com/nicolargo/glances
+# RHEL 系は EPEL にも無いため、apt/dnf 両対応の pipx に統一している
+# （system.sh のパッケージリストには入れていない）。
+log "Glances"
+if ! has pipx; then
+  warn "pipx not installed: run install/system.sh first"
+elif pipx list --short 2>/dev/null | grep -q '^glances '; then
+  skip "glances already installed"
+elif ! pipx install glances; then
+  warn "glances install failed"
+fi
+
+# コマンド名の互換シンボリックリンク。
+# bat   : apt 系は実行ファイル名が batcat（既存の別パッケージ名と衝突するため）
+# python: 無いディストロ/環境向けに python3 へ張る
+# sh は対象外。ほぼ全環境で最初から存在する（Debian/Ubuntu は dash、RHEL 系は bash への
+# シンボリックリンク）上、もし無い場合に bash で代替しても sh 本来の挙動（dash の
+# POSIX 準拠の厳しさ、bashism 非対応）とは一致しないため、代替として持たせる意味が薄い。
+for pair in "bat:batcat" "python:python3"; do
+  want="${pair%%:*}"
+  fallback="${pair#*:}"
+  log "$want -> $fallback symlink"
+  if has "$want"; then
+    skip "$want already available"
+  elif ! has "$fallback"; then
+    skip "$fallback not installed"
+  else
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v "$fallback")" "$HOME/.local/bin/$want"
+  fi
+done
+
 # Markdownlint
 log "Markdownlint"
 if ! has npm; then

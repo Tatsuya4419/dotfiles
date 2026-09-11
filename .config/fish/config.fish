@@ -9,6 +9,7 @@ if status is-interactive
     abbr -a gl git log
     abbr -a gf git fetch
     abbr -a xr xargs -I {}
+    abbr -a py python3
     # eza があれば使う（アイコンと git ステータス列つき）。
     if command -q eza
         abbr -a ll eza -la --group --icons --git
@@ -20,6 +21,12 @@ end
 
 command -q starship; and starship init fish | source
 command -q zoxide; and zoxide init fish | source
+
+# fzf: Ctrl-T (ファイル挿入) と Alt-C (cd)。fzf 0.60 以降は --fish が使える
+command -q fzf; and fzf --fish | source
+
+# atuin: Ctrl-R を置き換える。fzf より後に読むこと
+command -q atuin; and atuin init fish | source
 
 export PATH="$HOME/.local/bin:$PATH"
 

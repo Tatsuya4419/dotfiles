@@ -15,10 +15,19 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #   eza    - 9 にも 10 にも無い（EPEL を足しても無い）。ll は fish 側で ls に落ちる
 #   zoxide - EPEL 9 にはあるが 10 に無い。dnf は 1 つでも未知の名前があると
 #            何も入れずに落ちるため、リストに残せない
+#   atuin  - 9 にも 10 にも無い（EPEL を足しても無い。コンテナで確認済み）。
+#            公式インストーラ（curl）は ~/.atuin/bin 配下に入れる上、
+#            config.fish 等のシェル設定ファイルを自動で書き換える副作用があり
+#            他ツールの導入方式と揃わないため、ここでは見送る
+#   bat    - パッケージ名は apt/dnf 共通で `bat` だが、実行ファイル名が
+#            apt 系だけ `batcat`（既存の別パッケージと衝突するため）。
+#            `bat` コマンドとして揃えるシンボリックリンクは user.sh 側で張る
 # bubblewrap は codex のサンドボックス実行用（bwrap コマンド）。両系統とも同名で、
 # RHEL 側は EPEL 不要（baseos）。
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite)
+# glances はここに無い。RHEL 側は EPEL を足しても無い（コンテナで確認済み）ため、
+# 両ディストロで揃えられる pipx 経由に統一して user.sh 側で入れる。
+pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat atuin)
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat)
 
 pm="$(detect_pm)"
 case "$pm" in
