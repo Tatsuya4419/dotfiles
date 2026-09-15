@@ -2,12 +2,20 @@
 #
 # $HOME 内で完結する（= root が要らない）インストール。
 # 共用サーバではこれだけを実行すればよい。アカウントごとに毎回実行する。
+# `user.sh --upgrade` で、専用のアップグレード手段を持つツール（pipx/npm/fisher 経由の
+# もの）だけ導入済みでも最新化する。curl installer 系はツールごとに挙動を確認できて
+# いないため、--upgrade を渡しても従来通り skip する。
 
 set -uo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+
+upgrade_mode=0
+for arg in "$@"; do
+  [[ "$arg" == "--upgrade" ]] && upgrade_mode=1
+done
 
 # npm
 # prefix を ~/.npm-global にすることで global install に sudo が要らなくなる。
@@ -24,7 +32,7 @@ else
 fi
 
 # AWS CLI
-# https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/getting-started-install.html
+# curl-install: id=aws-cli doc=https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/getting-started-install.html
 # インストール先は ~/.local/bin/aws。
 log "AWS CLI"
 if has aws; then
@@ -34,7 +42,7 @@ elif ! curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash; then
 fi
 
 # Claude Code
-# https://code.claude.com/docs/ja/quickstart
+# curl-install: id=claude-code doc=https://code.claude.com/docs/ja/quickstart
 log "Claude Code"
 if has claude; then
   skip "$(claude --version)"
@@ -43,7 +51,7 @@ elif ! curl -fsSL https://claude.ai/install.sh | bash; then
 fi
 
 # Codex
-# https://learn.chatgpt.com/docs/codex/cli#getting-started
+# curl-install: id=codex doc=https://learn.chatgpt.com/docs/codex/cli#getting-started
 log "Codex"
 if has codex; then
   skip "$(codex --version)"
@@ -52,7 +60,7 @@ elif ! curl -fsSL https://chatgpt.com/codex/install.sh | sh; then
 fi
 
 # mq
-# https://mqlang.org/
+# curl-install: id=mq doc=https://github.com/harehare/mq
 # インストール先は ~/.local/bin。installer は config.fish に PATH 行を追記するので、
 # 導入済みならスキップして追記の重複を避ける。
 log "mq"
@@ -63,7 +71,7 @@ elif ! curl -sSL https://mqlang.org/install.sh | bash; then
 fi
 
 # uv
-# https://docs.astral.sh/uv/getting-started/installation/
+# curl-install: id=uv doc=https://docs.astral.sh/uv/getting-started/installation/
 # インストール先は ~/.local/bin（uv / uvx）。
 log "uv"
 if has uv; then
@@ -82,7 +90,11 @@ log "Headroom"
 if ! has pipx; then
   warn "pipx not installed: run install/system.sh first"
 elif pipx list --short 2>/dev/null | grep -q '^headroom-ai '; then
-  skip "headroom-ai already installed"
+  if [[ "$upgrade_mode" -eq 1 ]]; then
+    pipx upgrade headroom-ai || warn "headroom-ai upgrade failed"
+  else
+    skip "headroom-ai already installed"
+  fi
 else
   pip_args=()
   if ! detect_gpu; then
@@ -101,7 +113,11 @@ log "Glances"
 if ! has pipx; then
   warn "pipx not installed: run install/system.sh first"
 elif pipx list --short 2>/dev/null | grep -q '^glances '; then
-  skip "glances already installed"
+  if [[ "$upgrade_mode" -eq 1 ]]; then
+    pipx upgrade glances || warn "glances upgrade failed"
+  else
+    skip "glances already installed"
+  fi
 elif ! pipx install glances; then
   warn "glances install failed"
 fi
@@ -131,13 +147,17 @@ log "Markdownlint"
 if ! has npm; then
   warn "npm not installed: skipping markdownlint-cli2"
 elif npm ls -g --depth=0 markdownlint-cli2 >/dev/null 2>&1; then
-  skip "markdownlint-cli2 already installed"
+  if [[ "$upgrade_mode" -eq 1 ]]; then
+    npm update -g markdownlint-cli2 || warn "markdownlint-cli2 upgrade failed"
+  else
+    skip "markdownlint-cli2 already installed"
+  fi
 elif ! npm install markdownlint-cli2 --global; then
   warn "markdownlint-cli2 install failed"
 fi
 
 # Starship
-# https://starship.rs/ja-JP/
+# curl-install: id=starship doc=https://starship.rs/ja-JP/
 # 既定の install 先は /usr/local/bin で sudo が要るため、--bin-dir で $HOME に寄せる。
 log "Starship"
 if has starship; then
@@ -163,7 +183,11 @@ log "Fisher"
 if ! has fish; then
   warn "fish not installed: skipping fisher"
 elif fish -c 'functions -q fisher' >/dev/null 2>&1; then
-  skip "fisher already installed"
+  if [[ "$upgrade_mode" -eq 1 ]]; then
+    fish -c 'fisher update' || warn "fisher update failed"
+  else
+    skip "fisher already installed"
+  fi
 elif fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'; then
   # fish_plugins に列挙されたプラグインを取り込む。
   fish -c 'fisher update' || warn "fisher update failed"
