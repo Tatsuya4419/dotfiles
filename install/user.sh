@@ -107,12 +107,12 @@ elif ! pipx install glances; then
 fi
 
 # コマンド名の互換シンボリックリンク。
-# bat   : apt 系は実行ファイル名が batcat（既存の別パッケージ名と衝突するため）
-# python: 無いディストロ/環境向けに python3 へ張る
+# bat, fd: apt 系は実行ファイル名が batcat, fdfind（既存の別パッケージ名と衝突するため）
+# python : 無いディストロ/環境向けに python3 へ張る
 # sh は対象外。ほぼ全環境で最初から存在する（Debian/Ubuntu は dash、RHEL 系は bash への
 # シンボリックリンク）上、もし無い場合に bash で代替しても sh 本来の挙動（dash の
 # POSIX 準拠の厳しさ、bashism 非対応）とは一致しないため、代替として持たせる意味が薄い。
-for pair in "bat:batcat" "python:python3"; do
+for pair in "bat:batcat" "fd:fdfind" "python:python3"; do
   want="${pair%%:*}"
   fallback="${pair#*:}"
   log "$want -> $fallback symlink"
