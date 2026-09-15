@@ -37,6 +37,11 @@ detect_pm() {
   fi
 }
 
+# NVIDIA GPU の有無。torch 系パッケージを CUDA 版にするか CPU-only 版にするかの分岐に使う。
+detect_gpu() {
+  has nvidia-smi || [[ -e /proc/driver/nvidia/version ]]
+}
+
 # root なら sudo 不要、非 root で sudo が無ければ "none"。
 detect_sudo() {
   if [[ ${EUID:-$(id -u)} -eq 0 ]]; then

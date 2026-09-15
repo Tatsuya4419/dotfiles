@@ -5,6 +5,7 @@
     ],
     "deny": [
       "Bash(rm -f *)",
+      "Bash(sudo *)",
       "Read(**/.env)",
       "Read(**/*.env)",
       "Read(./.venv)",

@@ -6,3 +6,5 @@
 *~
 __ignore__*
 node_modules
+.headroom*
+.claude/settings.local.json

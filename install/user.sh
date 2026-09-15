@@ -62,17 +62,69 @@ elif ! curl -sSL https://mqlang.org/install.sh | bash; then
   warn "mq install failed"
 fi
 
+# uv
+# https://docs.astral.sh/uv/getting-started/installation/
+# インストール先は ~/.local/bin（uv / uvx）。
+log "uv"
+if has uv; then
+  skip "$(uv --version 2>&1)"
+elif ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
+  warn "uv install failed"
+fi
+
 # Headroom
 # https://github.com/headroomlabs-ai/headroom
 # Debian/Ubuntu の python は externally-managed なので pipx で入れる。
+# [ml] extra が torch を引くが、GPU 無し環境で素の pip install だと
+# CUDA 版 torch (nvidia-* 込みで数GB) が入ってしまう。GPU が無ければ
+# PyTorch の CPU-only wheel index を優先させて肥大化を避ける。
 log "Headroom"
 if ! has pipx; then
   warn "pipx not installed: run install/system.sh first"
 elif pipx list --short 2>/dev/null | grep -q '^headroom-ai '; then
   skip "headroom-ai already installed"
-elif ! pipx install "headroom-ai[all]"; then
-  warn "headroom-ai install failed"
+else
+  pip_args=()
+  if ! detect_gpu; then
+    pip_args=(--pip-args="--index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple")
+  fi
+  if ! pipx install "headroom-ai[all]" "${pip_args[@]}"; then
+    warn "headroom-ai install failed"
+  fi
 fi
+
+# Glances
+# https://github.com/nicolargo/glances
+# RHEL 系は EPEL にも無いため、apt/dnf 両対応の pipx に統一している
+# （system.sh のパッケージリストには入れていない）。
+log "Glances"
+if ! has pipx; then
+  warn "pipx not installed: run install/system.sh first"
+elif pipx list --short 2>/dev/null | grep -q '^glances '; then
+  skip "glances already installed"
+elif ! pipx install glances; then
+  warn "glances install failed"
+fi
+
+# コマンド名の互換シンボリックリンク。
+# bat, fd: apt 系は実行ファイル名が batcat, fdfind（既存の別パッケージ名と衝突するため）
+# python : 無いディストロ/環境向けに python3 へ張る
+# sh は対象外。ほぼ全環境で最初から存在する（Debian/Ubuntu は dash、RHEL 系は bash への
+# シンボリックリンク）上、もし無い場合に bash で代替しても sh 本来の挙動（dash の
+# POSIX 準拠の厳しさ、bashism 非対応）とは一致しないため、代替として持たせる意味が薄い。
+for pair in "bat:batcat" "fd:fdfind" "python:python3"; do
+  want="${pair%%:*}"
+  fallback="${pair#*:}"
+  log "$want -> $fallback symlink"
+  if has "$want"; then
+    skip "$want already available"
+  elif ! has "$fallback"; then
+    skip "$fallback not installed"
+  else
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v "$fallback")" "$HOME/.local/bin/$want"
+  fi
+done
 
 # Markdownlint
 log "Markdownlint"
