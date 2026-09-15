@@ -3,6 +3,7 @@
 # システム全体に影響する（= root が要る）インストールだけを扱う。
 # 共用サーバでは実行しないこと。1 台につき 1 回でよい。
 # 権限が無い場合は `system.sh --print` で必要なインストールコマンドだけ出力できる。
+# `system.sh --upgrade` で導入済みのパッケージも最新版へ更新する。
 
 set -uo pipefail
 
@@ -61,13 +62,27 @@ pkg_installed() {
   esac
 }
 
+print_mode=0
+upgrade_mode=0
+for arg in "$@"; do
+  case "$arg" in
+    --print) print_mode=1 ;;
+    --upgrade) upgrade_mode=1 ;;
+  esac
+done
+
 missing=()
+installed=()
 for pkg in ${pkgs[@]+"${pkgs[@]}"}; do
-  pkg_installed "$pkg" || missing+=("$pkg")
+  if pkg_installed "$pkg"; then
+    installed+=("$pkg")
+  else
+    missing+=("$pkg")
+  fi
 done
 
 # --print: 管理者に渡すためのコマンドだけ出して終わる。
-if [[ "${1:-}" == "--print" ]]; then
+if [[ "$print_mode" -eq 1 ]]; then
   if [[ ${#pkgs[@]} -eq 0 ]]; then
     printf '# %s 向けのパッケージリストは未定義。Debian 系の名前を読み替えること:\n' "$pm"
     printf '#   %s\n' "${pkgs_apt[*]}"
@@ -77,20 +92,41 @@ if [[ "${1:-}" == "--print" ]]; then
   exit 0
 fi
 
+# dnf/yum は install 済みのパッケージに対して install を叩いても上げてくれない
+# （apt はそのまま最新化される）ため、upgrade サブコマンドを別に用意する。
+case "$pm" in
+  apt) upgrade_cmd=(apt-get install -y) ;;
+  dnf | yum) upgrade_cmd=("$pm" upgrade -y) ;;
+  *) upgrade_cmd=() ;;
+esac
+
 log "packages ($pm)"
 sudo_cmd="$(detect_sudo)"
 if [[ "$pm" == "none" ]]; then
   warn "no supported package manager (apt-get/dnf/yum) -> ${pkgs_apt[*]}"
 elif [[ ${#pkgs[@]} -eq 0 ]]; then
   warn "no package list defined for $pm: run 'install/system.sh --print' and map the names by hand"
-elif [[ ${#missing[@]} -eq 0 ]]; then
-  skip "all packages installed"
 elif [[ "$sudo_cmd" == "none" ]]; then
-  warn "no sudo: run 'install/system.sh --print' and ask an admin -> ${missing[*]}"
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    warn "no sudo: run 'install/system.sh --print' and ask an admin -> ${missing[*]}"
+  else
+    skip "all packages installed"
+  fi
 elif [[ ${#refresh_cmd[@]} -gt 0 ]] && ! $sudo_cmd "${refresh_cmd[@]}"; then
   warn "$pm refresh failed -> ${missing[*]}"
-elif ! $sudo_cmd "${install_cmd[@]}" "${missing[@]}"; then
-  warn "$pm install failed (no privileges?) -> ${missing[*]}"
+else
+  if [[ ${#missing[@]} -eq 0 ]]; then
+    skip "all packages installed"
+  elif ! $sudo_cmd "${install_cmd[@]}" "${missing[@]}"; then
+    warn "$pm install failed (no privileges?) -> ${missing[*]}"
+  fi
+  if [[ "$upgrade_mode" -eq 1 ]]; then
+    if [[ ${#installed[@]} -eq 0 ]]; then
+      skip "upgrade: nothing already installed"
+    elif ! $sudo_cmd "${upgrade_cmd[@]}" "${installed[@]}"; then
+      warn "$pm upgrade failed -> ${installed[*]}"
+    fi
+  fi
 fi
 
 summary "system"
