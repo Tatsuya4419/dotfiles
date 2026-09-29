@@ -40,6 +40,8 @@ fi
 
 setfile ".markdownlint-cli2.jsonc"
 
+setfile ".mermaid_config.jsonc"
+
 setfile ".gitconfig_shared"
 # setfile ".gitignore_global"
 # git config --global include.path "~/.gitconfig_shared"

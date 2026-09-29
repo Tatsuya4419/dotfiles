@@ -10,6 +10,11 @@ if status is-interactive
     abbr -a gf git fetch
     abbr -a xr xargs -I {}
     abbr -a py python3
+    abbr -a xdmc ls \*.mmd \| xargs -I {} bash -c \"docker run --rm -u $(id -u):$(id -g) -v $(pwd):/data -v ~/.mermaid_config.jsonc:/mermaid_config.jsonc minlag/mermaid-cli -i {} -o {}.png -c /mermaid_config.jsonc -s 2\"
+    # zoxideがあれば使う
+    if command -q zoxide
+        abbr -a cd z
+    end
     # eza があれば使う（アイコンと git ステータス列つき）。
     if command -q eza
         abbr -a ll eza -la --group --icons --git
@@ -53,4 +58,3 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # npm global (see install/install.sh: npm config set prefix ~/.npm-global)
 fish_add_path -g "$HOME/.npm-global/bin"
-
