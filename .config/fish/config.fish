@@ -1,13 +1,20 @@
 if status is-interactive
+    abbr .. cd ..
+    abbr ... cd ../..
+    abbr .... cd ../../..
     abbr -a g git
     abbr -a c clear
     abbr -a gc git checkout
+    abbr -a gm git merge
+    abbr -a gcm git checkout main
     abbr -a gs git status
     abbr -a ga git add
     abbr -a gb git branch
-    abbr -a gp git push
+    abbr -a gph git push origin
+    abbr -a gpl git pull origin
+    abbr -a gplm git pull origin main
     abbr -a gl git log
-    abbr -a gf git fetch
+    abbr -a gf git fetch origin
     abbr -a xr xargs -I {}
     abbr -a py python3
     abbr -a xdmc ls \*.mmd \| xargs -I {} bash -c \"docker run --rm -u $(id -u):$(id -g) -v $(pwd):/data -v ~/.mermaid_config.jsonc:/mermaid_config.jsonc minlag/mermaid-cli -i {} -o {}.png -c /mermaid_config.jsonc -s 2\"
