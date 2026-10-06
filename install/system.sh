@@ -23,6 +23,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #   bat    - パッケージ名は apt/dnf 共通で `bat` だが、実行ファイル名が
 #            apt 系だけ `batcat`（既存の別パッケージと衝突するため）。
 #            `bat` コマンドとして揃えるシンボリックリンクは user.sh 側で張る
+#   direnv - apt にはあるが、RHEL 9 / 10 には EPEL を足しても無い（コンテナで確認済み）。
+#            dnf 側のリストに残すと install 全体が落ちるため apt 専用にしてある
 #   fd-find - bat と同じ事情。apt 系だけ実行ファイル名が `fdfind`
 #             （既存の別パッケージと衝突するため）。fd への
 #             シンボリックリンクは user.sh 側で張る
@@ -30,8 +32,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # RHEL 側は EPEL 不要（baseos）。
 # glances はここに無い。RHEL 側は EPEL を足しても無い（コンテナで確認済み）ため、
 # 両ディストロで揃えられる pipx 経由に統一して user.sh 側で入れる。
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find)
+pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin podman direnv)
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find podman)
 
 pm="$(detect_pm)"
 case "$pm" in

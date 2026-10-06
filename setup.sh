@@ -35,8 +35,14 @@ setfile ".claude/settings.json"
 if [[ -d .claude/skills ]]; then
   find .claude/skills -type f -print0 | while IFS= read -r -d '' file; do
     setfile "$file"
+    # .agents/skills is read by both Codex and Gemini CLI
+    setfile "$file" ".agents/skills/${file#.claude/skills/}"
   done
 fi
+
+# one source, each agent's global rule path (Codex: AGENTS.md, Claude Code: CLAUDE.md)
+setfile ".config/agents/AGENTS.md" ".codex/AGENTS.md"
+setfile ".config/agents/AGENTS.md" ".claude/CLAUDE.md"
 
 setfile ".markdownlint-cli2.jsonc"
 
