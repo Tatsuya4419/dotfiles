@@ -36,9 +36,14 @@ end
 
 command -q starship; and starship init fish | source
 command -q zoxide; and zoxide init fish | source
+command -q direnv; and direnv hook fish | source
 
 # fzf: Ctrl-T (ファイル挿入) と Alt-C (cd)。fzf 0.60 以降は --fish が使える
 command -q fzf; and fzf --fish | source
+
+if status is-interactive; and functions -q fzf_configure_bindings
+    fzf_configure_bindings --directory=alt-shift-f --git_log=alt-shift-l --git_status=alt-shift-s --processes=alt-shift-p --variables=alt-shift-v
+end
 
 # atuin: Ctrl-R を置き換える。fzf より後に読むこと
 command -q atuin; and atuin init fish | source

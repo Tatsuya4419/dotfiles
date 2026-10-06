@@ -27,3 +27,9 @@ if [ -d "$HOME/.npm-global/bin" ]; then
     *) export PATH="$HOME/.npm-global/bin:$PATH" ;;
   esac
 fi
+
+has() { command -v "$1" >/dev/null 2>&1; }
+
+if has direnv; then
+  eval "$(direnv hook bash)"
+fi
