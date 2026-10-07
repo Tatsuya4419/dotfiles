@@ -37,12 +37,16 @@ if [[ -d .claude/skills ]]; then
     setfile "$file"
     # .agents/skills is read by both Codex and Gemini CLI
     setfile "$file" ".agents/skills/${file#.claude/skills/}"
+    # Antigravity CLI (agy) の global skills は別パス。.agents/skills は workspace 用
+    setfile "$file" ".gemini/antigravity-cli/skills/${file#.claude/skills/}"
   done
 fi
 
 # one source, each agent's global rule path (Codex: AGENTS.md, Claude Code: CLAUDE.md)
 setfile ".config/agents/AGENTS.md" ".codex/AGENTS.md"
 setfile ".config/agents/AGENTS.md" ".claude/CLAUDE.md"
+# Antigravity CLI: global context is ~/.gemini/GEMINI.md
+setfile ".config/agents/AGENTS.md" ".gemini/GEMINI.md"
 
 setfile ".markdownlint-cli2.jsonc"
 

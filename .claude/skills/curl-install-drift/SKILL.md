@@ -1,13 +1,13 @@
 ---
 name: curl-install-drift
-description: Check whether the curl-pipe-bash installers in install/user.sh (AWS CLI, Claude Code, Codex, mq, uv, Starship) still match what each vendor currently documents. Always use this when asked to check for drift/updates in dotfiles' curl-installed tools, or before hand-editing one of those blocks in install/user.sh.
+description: Check whether the curl-pipe-bash installers in install/user.sh (AWS CLI, Claude Code, Codex, Antigravity, mq, uv, Starship) still match what each vendor currently documents. Always use this when asked to check for drift/updates in dotfiles' curl-installed tools, or before hand-editing one of those blocks in install/user.sh.
 ---
 
 # curl-install drift check
 
 Covers the tools anchored with `# curl-install: id=<id> doc=<url>` comments in
-`install/user.sh` (currently `aws-cli`, `claude-code`, `codex`, `mq`, `uv`,
-`starship`). Those anchors are the source of truth for which tools are in
+`install/user.sh` (currently `aws-cli`, `claude-code`, `codex`, `agy`, `mq`,
+`uv`, `starship`). Those anchors are the source of truth for which tools are in
 scope — adding or removing one there is enough to change scope, no edit to
 this skill needed. `fisher` is intentionally not anchored: it already has a
 native `fisher update` upgrade path and doesn't need drift detection.
