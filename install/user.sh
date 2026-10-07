@@ -59,6 +59,16 @@ elif ! curl -fsSL https://chatgpt.com/codex/install.sh | sh; then
   warn "Codex install failed"
 fi
 
+# Antigravity
+# curl-install: id=agy doc=https://antigravity.google/docs/cli/getting-started
+# インストール先は ~/.local/bin/agy。
+log "Antigravity"
+if has agy; then
+  skip "$(agy --version 2>&1 | head -1)"
+elif ! curl -fsSL https://antigravity.google/cli/install.sh | bash; then
+  warn "Antigravity install failed"
+fi
+
 # mq
 # curl-install: id=mq doc=https://github.com/harehare/mq
 # インストール先は ~/.local/bin。installer は config.fish に PATH 行を追記するので、
@@ -210,6 +220,35 @@ elif claude mcp list 2>/dev/null | grep -q '^context7:'; then
   skip "claude: context7 already added"
 elif ! claude mcp add context7 --scope user -- npx -y @upstash/context7-mcp; then
   warn "claude mcp add context7 failed"
+fi
+# agy には `mcp add` 相当の CLI が無く、~/.gemini/config/mcp_config.json を直接書く。
+# https://antigravity.google/docs/cli/mcp
+# 既存の設定（他のサーバや手編集）を壊さないよう、context7 が無いときだけ追記する。
+agy_mcp_config="$HOME/.gemini/config/mcp_config.json"
+if ! has agy; then
+  skip "agy not installed"
+elif ! has python3; then
+  warn "python3 not installed: skipping agy context7"
+elif ! python3 -I - "$agy_mcp_config" <<'PY'
+import json, os, sys
+
+path = sys.argv[1]
+cfg = {}
+if os.path.exists(path):
+    with open(path) as f:
+        cfg = json.load(f)
+servers = cfg.setdefault("mcpServers", {})
+if "context7" in servers:
+    print("    skip: agy: context7 already added")
+    sys.exit(0)
+servers["context7"] = {"command": "npx", "args": ["-y", "@upstash/context7-mcp"]}
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with open(path, "w") as f:
+    json.dump(cfg, f, indent=2)
+    f.write("\n")
+PY
+then
+  warn "agy mcp config context7 failed"
 fi
 
 summary "user"
