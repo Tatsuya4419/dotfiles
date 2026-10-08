@@ -19,7 +19,9 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #   atuin  - 9 にも 10 にも無い（EPEL を足しても無い。コンテナで確認済み）。
 #            公式インストーラ（curl）は ~/.atuin/bin 配下に入れる上、
 #            config.fish 等のシェル設定ファイルを自動で書き換える副作用があり
-#            他ツールの導入方式と揃わないため、ここでは見送る
+#            他ツールの導入方式と揃わないため、ここでは見送る。
+#            atuin / zoxide / eza / direnv で apt/dnf に無い環境は、user.sh が
+#            GitHub Releases のバイナリを ~/.local/bin に入れて埋める
 #   bat    - パッケージ名は apt/dnf 共通で `bat` だが、実行ファイル名が
 #            apt 系だけ `batcat`（既存の別パッケージと衝突するため）。
 #            `bat` コマンドとして揃えるシンボリックリンクは user.sh 側で張る
