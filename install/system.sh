@@ -28,12 +28,17 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 #   fd-find - bat と同じ事情。apt 系だけ実行ファイル名が `fdfind`
 #             （既存の別パッケージと衝突するため）。fd への
 #             シンボリックリンクは user.sh 側で張る
+# 候補が無いパッケージ（例: Ubuntu 24.04 の atuin）があっても、下の install 処理が
+# 候補無しを除いて warn にとどめる。リストの手動の絞り込みは必須ではなくなったが、
+# 毎回 warn が出るのを避けたい既知のものは引き続き外してある。
+# unzip は AWS CLI の installer が依存する。WSL (Ubuntu) は最小構成で入っておらず、
+# user.sh の AWS CLI で落ちた。
 # bubblewrap は codex のサンドボックス実行用（bwrap コマンド）。両系統とも同名で、
 # RHEL 側は EPEL 不要（baseos）。
 # glances はここに無い。RHEL 側は EPEL を足しても無い（コンテナで確認済み）ため、
 # 両ディストロで揃えられる pipx 経由に統一して user.sh 側で入れる。
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin podman direnv)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find podman)
+pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin podman direnv unzip)
+pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find podman unzip)
 
 pm="$(detect_pm)"
 case "$pm" in
@@ -61,6 +66,19 @@ pkg_installed() {
     apt) [[ "$(dpkg-query -W -f='${Status}' "$1" 2>/dev/null)" == "install ok installed" ]] ;;
     dnf | yum) rpm -q "$1" >/dev/null 2>&1 ;;
     *) has "$1" ;;
+  esac
+}
+
+# リポジトリにインストール候補があるか。無い名前を install に混ぜると全体が落ちる。
+has_candidate() {
+  case "$pm" in
+    apt)
+      local c
+      c="$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"
+      [[ -n "$c" && "$c" != "(none)" ]]
+      ;;
+    dnf | yum) "$pm" -q list --available "$1" >/dev/null 2>&1 ;;
+    *) return 0 ;;
   esac
 }
 
@@ -117,8 +135,22 @@ elif [[ "$sudo_cmd" == "none" ]]; then
 elif [[ ${#refresh_cmd[@]} -gt 0 ]] && ! $sudo_cmd "${refresh_cmd[@]}"; then
   warn "$pm refresh failed -> ${missing[*]}"
 else
+  # apt/dnf とも未知の名前が 1 つでもあると何も入れずに落ちる（atuin は Debian 13 にあるが
+  # Ubuntu 24.04 には無い）。候補の無いものを先に外して warn し、残りだけ入れる。
+  # 候補の有無は refresh（apt update）の後でないと正しく引けないので、ここで見る。
+  # dnf は AlmaLinux 9 (4.14) / 10 (4.20) で確認済み: `list --available` は
+  # 有れば 0、無ければ 1 を返す。
+  available=()
+  for pkg in ${missing[@]+"${missing[@]}"}; do
+    if has_candidate "$pkg"; then
+      available+=("$pkg")
+    else
+      warn "$pm has no candidate for $pkg: skipped"
+    fi
+  done
+  missing=(${available[@]+"${available[@]}"})
   if [[ ${#missing[@]} -eq 0 ]]; then
-    skip "all packages installed"
+    skip "nothing to install"
   elif ! $sudo_cmd "${install_cmd[@]}" "${missing[@]}"; then
     warn "$pm install failed (no privileges?) -> ${missing[*]}"
   fi
