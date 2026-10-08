@@ -132,6 +132,27 @@ elif ! pipx install glances; then
   warn "glances install failed"
 fi
 
+# パッケージマネージャに無いツールのフォールバック（GitHub Releases のバイナリ）。
+# system.sh が apt/dnf で入れていれば has で skip される。入らなかった環境
+# （RHEL は 4 つとも無い、Ubuntu 24.04 は atuin が無い）の穴埋めで、~/.local/bin に入れる。
+# --upgrade の対象外（curl installer 系と同様、導入済みなら skip）。
+# チェックサムを公開しているのは atuin だけ。他は TLS のみで検証できない。
+for spec in \
+  "atuin|atuinsh/atuin|atuin-@ARCH@-unknown-linux-musl.tar.gz" \
+  "zoxide|ajeetdsouza/zoxide|zoxide-@VER@-@ARCH@-unknown-linux-musl.tar.gz" \
+  "eza|eza-community/eza|eza_@ARCH@-unknown-linux-gnu.tar.gz" \
+  "direnv|direnv/direnv|direnv.linux-@GOARCH@"; do
+  IFS='|' read -r bin repo tmpl <<<"$spec"
+  log "$bin (GitHub Releases fallback)"
+  if has "$bin"; then
+    skip "$bin already available"
+  elif ! has curl; then
+    warn "curl not installed: skipping $bin"
+  else
+    gh_release_install "$bin" "$repo" "$tmpl" || warn "$bin install failed"
+  fi
+done
+
 # コマンド名の互換シンボリックリンク。
 # bat, fd: apt 系は実行ファイル名が batcat, fdfind（既存の別パッケージ名と衝突するため）
 # python : 無いディストロ/環境向けに python3 へ張る

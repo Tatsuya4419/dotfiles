@@ -8,6 +8,7 @@
 #
 # system.sh は root が要りシステム全体に影響する。共用サーバでは --user-only か、
 # install/user.sh を直接実行すること。
+# sudo を付けても付けなくてもよい。付けた場合、user.sh は SUDO_USER として実行する。
 
 set -uo pipefail
 
@@ -29,6 +30,13 @@ else
   "$script_dir/system.sh" ${upgrade_args[@]+"${upgrade_args[@]}"} || status=1
 fi
 
-"$script_dir/user.sh" ${upgrade_args[@]+"${upgrade_args[@]}"} || status=1
+# `sudo install.sh` で呼ばれると user.sh まで root で走り、root の $HOME 以下に入れて
+# しまう。sudo 経由（SUDO_USER が root 以外）なら user.sh だけ元のユーザーに戻す。
+# 素の root ログイン（SUDO_USER 無し）は、そのまま root のアカウント向けに入れる。
+if [[ "${EUID:-$(id -u)}" -eq 0 && -n "${SUDO_USER:-}" && "$SUDO_USER" != "root" ]]; then
+  sudo -u "$SUDO_USER" -H "$script_dir/user.sh" ${upgrade_args[@]+"${upgrade_args[@]}"} || status=1
+else
+  "$script_dir/user.sh" ${upgrade_args[@]+"${upgrade_args[@]}"} || status=1
+fi
 
 exit "$status"

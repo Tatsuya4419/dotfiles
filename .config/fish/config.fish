@@ -42,7 +42,15 @@ command -q direnv; and direnv hook fish | source
 command -q fzf; and fzf --fish | source
 
 if status is-interactive; and functions -q fzf_configure_bindings
-    fzf_configure_bindings --directory=alt-shift-f --git_log=alt-shift-l --git_status=alt-shift-s --processes=alt-shift-p --variables=alt-shift-v
+    # alt-shift-v のような名前付きの書式は fish 4.0 以降だけ。3.x では「alt-shift-v」という
+    # 文字列の並びとして登録され、キーに効かない。3.x はバイト列（Alt+Shift+v = \eV）で書く。
+    # --history は未指定だと既定の ctrl-r が文字列として登録されるので \cR で明示する
+    # （どのみち下の atuin が上書きする）。
+    if string match -qr '^[0-3]\.' -- $version
+        fzf_configure_bindings --directory=\eF --git_log=\eL --git_status=\eS --processes=\eP --variables=\eV --history=\cR
+    else
+        fzf_configure_bindings --directory=alt-shift-f --git_log=alt-shift-l --git_status=alt-shift-s --processes=alt-shift-p --variables=alt-shift-v
+    end
 end
 
 # atuin: Ctrl-R を置き換える。fzf より後に読むこと
