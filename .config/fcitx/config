@@ -1,0 +1,5 @@
+[Hotkey]
+# 変換キー: 日本語入力 (mozc) に切り替え
+ActivateKey=HENKANMODE
+# 無変換キー: 英語 (キーボードレイアウト) に切り替え
+InactivateKey=MUHENKAN
