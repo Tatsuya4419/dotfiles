@@ -28,6 +28,9 @@ if status is-interactive
     else
         abbr -a ll ls -al
     end
+    abbr -a hr headroom wrap
+    abbr -a hrcl headroom wrap claude
+    abbr -a hrcx headroom wrap codex
     abbr -a t tree -L 2
     # fa の後に Space で展開だけ（続けて引数を打てる）。
     # Enter で展開すると、展開後の行がそのまま実行されてしまうので注意。
@@ -38,8 +41,15 @@ command -q starship; and starship init fish | source
 command -q zoxide; and zoxide init fish | source
 command -q direnv; and direnv hook fish | source
 
-# fzf: Ctrl-T (ファイル挿入) と Alt-C (cd)。fzf 0.60 以降は --fish が使える
-command -q fzf; and fzf --fish | source
+# fzf: Ctrl-T (ファイル挿入) と Alt-C (cd)。
+# --fish に非対応の古い fzf では、パッケージ同梱の fzf_key_bindings（vendor_functions.d）に落とす
+if command -q fzf
+    if fzf --fish >/dev/null 2>&1
+        fzf --fish | source
+    else if functions -q fzf_key_bindings
+        fzf_key_bindings
+    end
+end
 
 if status is-interactive; and functions -q fzf_configure_bindings
     # alt-shift-v のような名前付きの書式は fish 4.0 以降だけ。3.x では「alt-shift-v」という
@@ -74,7 +84,7 @@ if command -q atuin
     end
 end
 
-export PATH="$HOME/.local/bin:$PATH"
+fish_add_path -g "$HOME/.local/bin"
 
 # npm global (see install/install.sh: npm config set prefix ~/.npm-global)
 fish_add_path -g "$HOME/.npm-global/bin"

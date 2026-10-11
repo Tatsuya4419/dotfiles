@@ -214,10 +214,22 @@ log "Fisher"
 if ! has fish; then
   warn "fish not installed: skipping fisher"
 elif fish -c 'functions -q fisher' >/dev/null 2>&1; then
-  if [[ "$upgrade_mode" -eq 1 ]]; then
+  # fish_plugins は後から増える（setup.sh のリンクや git pull の後）ので、
+  # 列挙されているのに入っていないプラグインがあれば fisher update で取り込む。
+  fish_plugins_file="${XDG_CONFIG_HOME:-$HOME/.config}/fish/fish_plugins"
+  installed_plugins="$(fish -c 'fisher list' 2>/dev/null)"
+  missing_plugins=()
+  if [[ -f "$fish_plugins_file" ]]; then
+    while IFS= read -r plugin; do
+      [[ -z "$plugin" || "$plugin" == \#* ]] && continue
+      grep -qxF -- "$plugin" <<<"$installed_plugins" || missing_plugins+=("$plugin")
+    done <"$fish_plugins_file"
+  fi
+  if [[ "$upgrade_mode" -eq 1 || ${#missing_plugins[@]} -gt 0 ]]; then
+    [[ ${#missing_plugins[@]} -gt 0 ]] && printf '    fisher: not installed yet -> %s\n' "${missing_plugins[*]}"
     fish -c 'fisher update' || warn "fisher update failed"
   else
-    skip "fisher already installed"
+    skip "fisher already installed, plugins in sync"
   fi
 elif fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'; then
   # fish_plugins に列挙されたプラグインを取り込む。
