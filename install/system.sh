@@ -39,8 +39,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # RHEL 側は EPEL 不要（baseos）。
 # glances はここに無い。RHEL 側は EPEL を足しても無い（コンテナで確認済み）ため、
 # 両ディストロで揃えられる pipx 経由に統一して user.sh 側で入れる。
-pkgs_apt=(fish npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin podman direnv unzip)
-pkgs_dnf=(fish nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find podman unzip)
+pkgs_apt=(fish tmux npm python3-pip pipx tree python3 vim gh eza zoxide bubblewrap sqlite3 htop btop ripgrep fzf bat fd-find atuin podman direnv unzip)
+pkgs_dnf=(fish tmux nodejs-npm python3-pip pipx tree python3 vim-enhanced gh bubblewrap sqlite htop btop ripgrep fzf bat fd-find podman unzip)
 
 pm="$(detect_pm)"
 case "$pm" in

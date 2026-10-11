@@ -33,6 +33,8 @@ setfile ".config/atuin/config.toml"
 
 setfile ".config/fcitx/config"
 
+setfile ".tmux.conf"
+
 setfile ".claude/settings.json"
 if [[ -d .claude/skills ]]; then
   find .claude/skills -type f -print0 | while IFS= read -r -d '' file; do
