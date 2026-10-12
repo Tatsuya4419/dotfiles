@@ -37,7 +37,6 @@ if status is-interactive
     abbr -a fa --function fzf_abbr
 end
 
-command -q starship; and starship init fish | source
 command -q zoxide; and zoxide init fish | source
 command -q direnv; and direnv hook fish | source
 
@@ -88,3 +87,5 @@ fish_add_path -g "$HOME/.local/bin"
 
 # npm global (see install/install.sh: npm config set prefix ~/.npm-global)
 fish_add_path -g "$HOME/.npm-global/bin"
+
+command -q starship; and starship init fish | source
