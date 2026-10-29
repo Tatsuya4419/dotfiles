@@ -60,7 +60,10 @@ setfile ".mermaid_config.jsonc"
 
 setfile ".gitconfig_shared"
 # setfile ".gitignore_global"
-# git config --global include.path "~/.gitconfig_shared"
+# ~/.gitconfig holds machine-specific values (user.email, credential helpers), so don't symlink it; only append the include
+if ! git config --global --fixed-value --get include.path '~/.gitconfig_shared' >/dev/null; then
+  git config --global --add include.path '~/.gitconfig_shared'
+fi
 
 mkdir -p ~/.config/git
 setfile ".gitignore_global" ".config/git/ignore"

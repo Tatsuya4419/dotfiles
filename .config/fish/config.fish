@@ -15,6 +15,8 @@ if status is-interactive
     abbr -a gplm git pull origin main
     abbr -a gl git log
     abbr -a gf git fetch origin
+    abbr -a gdc git diff --check origin/main...HEAD
+    abbr -a proot cd $(git rev-parse --show-toplevel) > /dev/null
     abbr -a xr xargs -I {}
     abbr -a py python3
     abbr -a xdmc ls \*.mmd \| xargs -I {} bash -c \"docker run --rm -u $(id -u):$(id -g) -v $(pwd):/data -v ~/.mermaid_config.jsonc:/mermaid_config.jsonc minlag/mermaid-cli -i {} -o {}.png -c /mermaid_config.jsonc -s 2\"
