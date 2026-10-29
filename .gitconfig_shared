@@ -6,3 +6,4 @@
   co = checkout
   ci = commit
   br = branch
+  lol = log --graph --decorate --oneline --all
