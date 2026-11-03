@@ -90,6 +90,27 @@ elif ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
   warn "uv install failed"
 fi
 
+# mise
+# curl-install: id=mise doc=https://mise.jdx.dev/getting-started.html
+# インストール先は ~/.local/bin/mise。
+log "mise"
+if has mise; then
+  skip "$(mise --version 2>&1 | head -1)"
+elif ! curl -fsSL https://mise.run | sh; then
+  warn "mise install failed"
+fi
+
+# DuckDB
+# curl-install: id=duckdb doc=https://duckdb.org/install/
+# 本体は ~/.duckdb/cli/<version>/duckdb。installer が ~/.local/bin/duckdb へ
+# シンボリックリンクも張るので、PATH 追記は不要。
+log "DuckDB"
+if has duckdb; then
+  skip "$(duckdb --version 2>&1 | head -1)"
+elif ! curl -fsSL https://install.duckdb.org | bash; then
+  warn "DuckDB install failed"
+fi
+
 # Headroom
 # https://github.com/headroomlabs-ai/headroom
 # Debian/Ubuntu の python は externally-managed なので pipx で入れる。

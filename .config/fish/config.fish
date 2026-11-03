@@ -16,10 +16,10 @@ if status is-interactive
     abbr -a gl git log
     abbr -a gf git fetch origin
     abbr -a gdc git diff --check origin/main...HEAD
-    abbr -a proot cd $(git rev-parse --show-toplevel) > /dev/null
+    abbr -a proot 'cd $(git rev-parse --show-toplevel) > /dev/null'
     abbr -a xr xargs -I {}
     abbr -a py python3
-    abbr -a xdmc ls \*.mmd \| xargs -I {} bash -c \"docker run --rm -u $(id -u):$(id -g) -v $(pwd):/data -v ~/.mermaid_config.jsonc:/mermaid_config.jsonc minlag/mermaid-cli -i {} -o {}.png -c /mermaid_config.jsonc -s 2\"
+    abbr -a xdmc 'ls *.mmd | xargs -I {} bash -c "docker run --rm -u $(id -u):$(id -g) -v $(pwd):/data -v ~/.mermaid_config.jsonc:/mermaid_config.jsonc minlag/mermaid-cli -i {} -o {}.png -c /mermaid_config.jsonc -s 2"'
     # zoxideがあれば使う
     if command -q zoxide
         abbr -a cd z
@@ -91,3 +91,11 @@ fish_add_path -g "$HOME/.local/bin"
 fish_add_path -g "$HOME/.npm-global/bin"
 
 command -q starship; and starship init fish | source
+# mise: 対話シェルは activate、非対話（cron・スクリプト等）は shims。
+if command -q mise
+    if status is-interactive
+        mise activate fish | source
+    else
+        mise activate fish --shims | source
+    end
+end
