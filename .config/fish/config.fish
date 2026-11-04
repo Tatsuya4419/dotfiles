@@ -16,6 +16,7 @@ if status is-interactive
     abbr -a gl git log
     abbr -a gf git fetch origin
     abbr -a gdc git diff --check origin/main...HEAD
+    abbr -a lg lazygit
     abbr -a proot 'cd $(git rev-parse --show-toplevel) > /dev/null'
     abbr -a xr xargs -I {}
     abbr -a py python3
