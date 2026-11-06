@@ -1,0 +1,1 @@
+jq 'map(.a) | unique'
